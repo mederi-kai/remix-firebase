@@ -1,10 +1,25 @@
 import type { MetaFunction } from "@remix-run/node";
+import { LoaderFunction, redirect } from "@remix-run/node";
+import { checkToken } from "~/libs/token";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
+    { title: "Firebase Remix App" },
+    { name: "description", content: "Firebase Remix App" },
   ];
+};
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const token = await checkToken(request);
+  if (!token) return redirect("/login");
+  try {
+    const profile = { uid: token.uid };
+    console.log(profile);
+    return redirect("/file");
+  } catch (e: unknown) {
+    // Invalid JWT - log them out (see below)
+    return redirect("/logout");
+  }
 };
 
 export default function Index() {
